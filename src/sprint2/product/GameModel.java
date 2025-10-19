@@ -11,7 +11,7 @@ public class GameModel {
 		this.size = size;
 		board = new char[size][size];
 		currentPlayer = 1;
-		//gameMode = GameMode.SIMPLE;
+		gameMode = GameMode.SIMPLE;
 	}
 	
 	public int getCell(int row, int column) {
