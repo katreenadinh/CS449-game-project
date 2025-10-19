@@ -1,4 +1,4 @@
-package sprint1.product;
+package sprint2.product;
 
 public class GameModel {
 
