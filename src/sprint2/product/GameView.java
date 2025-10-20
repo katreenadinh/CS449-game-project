@@ -15,19 +15,21 @@ public class GameView extends Application {
     private GameModel model;
     private GameController controller;
     private Square[][] squares;
-
+    
+    private GridPane boardPane;
     private ToggleGroup gameModeGroup;
     private ToggleGroup blueGroup;
     private ToggleGroup redGroup;
     private ComboBox<Integer> boardSizeBox;
     private Label currentTurnLabel;
+    private BorderPane mainPanel;
 
     @Override
     public void start(Stage primaryStage) {
         // Initialize model
         model = new GameModel(3); // Default 3x3 board
 
-        BorderPane mainPanel = new BorderPane();
+        mainPanel = new BorderPane();
         mainPanel.setPadding(new Insets(10));
 
         // --- Top: Game Mode & Board Size ---
@@ -82,7 +84,7 @@ public class GameView extends Application {
         mainPanel.setRight(redBox);
 
         // --- Center: Game Board ---
-        GridPane boardPane = new GridPane();
+        boardPane = new GridPane();
         boardPane.setAlignment(Pos.CENTER);
         int size = model.getSize();
         squares = new Square[size][size];
@@ -96,11 +98,14 @@ public class GameView extends Application {
         mainPanel.setCenter(boardPane);
 
         // --- Bottom: Current Turn ---
-        currentTurnLabel = new Label("Current Turn: Blue");
+        currentTurnLabel = new Label("Current Turn: " + 
+        	    (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
         currentTurnLabel.setFont(Font.font(16));
         currentTurnLabel.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(currentTurnLabel, Pos.CENTER);
         mainPanel.setBottom(currentTurnLabel);
+        
+        controller = new GameController(model, this);
         
         Scene scene = new Scene(mainPanel, 700, 600);
 
@@ -113,21 +118,113 @@ public class GameView extends Application {
     public class Square extends Pane {
         private final int row;
         private final int col;
+        private Label letterLabel;
 
         public Square(int row, int col) {
             this.row = row;
             this.col = col;
+            
+            letterLabel = new Label("");
+            letterLabel.setFont(Font.font(24));
+            letterLabel.setAlignment(Pos.CENTER);
+            letterLabel.setMaxWidth(Double.MAX_VALUE);
+            letterLabel.setMaxHeight(Double.MAX_VALUE);
+            
+            // Use StackPane for better centering
+            StackPane stack = new StackPane(letterLabel);
+            stack.setPrefSize(80, 80);
+            getChildren().add(stack);
+            
             setStyle("-fx-border-color: black; -fx-background-color: white;");
             setPrefSize(80, 80);
-            setOnMouseClicked(e -> handleMouseClick());
+            setMinSize(80, 80);
+            setMaxSize(80, 80);
         }
-
-        private void handleMouseClick() {
-            System.out.println("Square clicked at (" + row + ", " + col + ")");
+        
+        public void setLetter(char letter) {
+        	letterLabel.setText(String.valueOf(letter));
         }
     }
 
     public static void main(String[] args) {
         launch(args);
     }
+
+	public Square[][] getSquares() {
+		return squares;
+	}
+
+	public void setSquares(Square[][] squares) {
+		this.squares = squares;
+	}
+
+	public ToggleGroup getGameModeGroup() {
+		return gameModeGroup;
+	}
+
+	public void setGameModeGroup(ToggleGroup gameModeGroup) {
+		this.gameModeGroup = gameModeGroup;
+	}
+
+	public ToggleGroup getBlueGroup() {
+		return blueGroup;
+	}
+
+	public void setBlueGroup(ToggleGroup blueGroup) {
+		this.blueGroup = blueGroup;
+	}
+
+	public ToggleGroup getRedGroup() {
+		return redGroup;
+	}
+
+	public void setRedGroup(ToggleGroup redGroup) {
+		this.redGroup = redGroup;
+	}
+
+	public ComboBox<Integer> getBoardSizeBox() {
+		return boardSizeBox;
+	}
+
+	public void setBoardSizeBox(ComboBox<Integer> boardSizeBox) {
+		this.boardSizeBox = boardSizeBox;
+	}
+
+	public Label getCurrentTurnLabel() {
+		return currentTurnLabel;
+	}
+
+	public void setCurrentTurnLabel(Label currentTurnLabel) {
+		this.currentTurnLabel = currentTurnLabel;
+	}
+	
+	public void setCurrentTurnLabel(String text) {
+	    if (currentTurnLabel != null) {
+	        currentTurnLabel.setText(text);
+	    }
+	}
+
+	public GridPane getBoardPane() {
+		return boardPane;
+	}
+
+	public void setBoardPane(GridPane boardPane) {
+		this.boardPane = boardPane;
+	}
+
+	public BorderPane getMainPanel() {
+		return mainPanel;
+	}
+
+	public void setMainPanel(BorderPane mainPanel) {
+		this.mainPanel = mainPanel;
+	}
+	
+	public GameModel getModel() {
+		return model;
+	}
+	
+	public void setModel(GameModel model) {
+		this.model = model;
+	}
 }

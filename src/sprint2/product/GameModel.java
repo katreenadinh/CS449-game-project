@@ -31,6 +31,12 @@ public class GameModel {
 		return size;
 	}
 	
+	public void setSize(int newSize) {
+        this.size = newSize;
+        this.board = new char[newSize][newSize];
+        this.currentPlayer = 1;
+    }
+	
 	public void setGameMode(GameMode mode) {
 		this.gameMode = mode;
 	}
