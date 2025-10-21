@@ -27,14 +27,22 @@ public class GameModel {
 		return false;
 	}
 	
+	public void setSize(int size) {
+		this.size = size;
+	}
+	
 	public int getSize() {
 		return size;
 	}
 	
-	public void setBoardSize(int newSize) {
+	public boolean setBoardSize(int newSize) {
+		if (newSize < 3) {
+			return false;
+		}
         this.size = newSize;
         this.board = new char[newSize][newSize];
         this.currentPlayer = 1;
+        return true;
     }
 	
 	public void setGameMode(GameMode mode) {
@@ -45,9 +53,20 @@ public class GameModel {
 		return gameMode;
 	}
 	
+	public void setCurrentPlayer(int currentPlayer) {
+		this.currentPlayer = currentPlayer;
+	}
+	
 	public int getCurrentPlayer() {
 		return currentPlayer;
 	}
+
+	public void setBoard(char[][] board) {
+		this.board = board;
+	}
 	
+	public char[][] getBoard() {
+		return board;
+	}
 	
 }
