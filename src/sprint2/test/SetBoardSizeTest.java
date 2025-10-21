@@ -1,7 +1,6 @@
 package sprint2.test;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.After;
 import org.junit.jupiter.api.*;
 import sprint2.product.GameModel;
@@ -18,7 +17,8 @@ class SetBoardSizeTest {
     @After
 	public void tearDown() throws Exception {
 	}
-
+    
+    // acceptance criterion 1.1
     @Test
     @DisplayName("Set a valid board size (>=3) should succeed")
     public void testSetBoardSize_Valid() {
@@ -27,7 +27,8 @@ class SetBoardSizeTest {
         assertEquals(5, model.getSize(), "Board size should update to 5");
         assertEquals(5, model.getBoard().length, "Board rows should match new size");
     }
-
+    
+    // acceptance criterion 1.2
     @Test
     @DisplayName("Set an invalid board size (<3) should fail")
     public void testSetBoardSize_Invalid() {
