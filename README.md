@@ -34,7 +34,7 @@ git clone https://github.com/katreenadinh/CS449-game-project.git
 4. **Locate the ```src``` folder**
   - Navigate to appropriate sprint that you wish to run
 5. **Run the game**
-    - Open and run ```GameView.java``` to lauch
+    - Open and run ```GameView.java``` to launch
     - Play the game!
    
   
