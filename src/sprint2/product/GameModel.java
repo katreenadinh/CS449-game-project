@@ -27,9 +27,6 @@ public class GameModel {
 		return false;
 	}
 	
-	public void setSize(int size) {
-		this.size = size;
-	}
 	
 	public int getSize() {
 		return size;
