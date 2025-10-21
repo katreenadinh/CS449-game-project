@@ -48,7 +48,7 @@ public class GameController {
         if (sizeBox != null) {
             sizeBox.setOnAction(e -> {
                 int newSize = sizeBox.getValue();
-                model.setSize(newSize);
+                model.setBoardSize(newSize);
                 System.out.println("Board resized to " + newSize + "x" + newSize);
                 rebuildBoard(newSize);
                 view.setCurrentTurnLabel("Current Turn: Blue Player");
