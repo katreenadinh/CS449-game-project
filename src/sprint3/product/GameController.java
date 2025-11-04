@@ -4,6 +4,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.shape.Line;
+import javafx.scene.paint.Color;
 
 public class GameController {
 
@@ -96,15 +98,36 @@ public class GameController {
     }
 
     public void handleSquareClick(int row, int col) {
+    	
+    	if (model.isGameOver()) {
+            view.setCurrentTurnLabel(getGameOverText());
+            return;
+        }
+    	
         char letter = getSelectedLetterForCurrentPlayer();
         boolean moveMade = model.makeMove(row, col, letter);
 
         if (moveMade) {
             System.out.println("Move made at (" + row + ", " + col + ") with " + letter);
             updateSquare(row, col, letter);
-            view.setCurrentTurnLabel("Current Turn: " + 
+            drawSOSLine();
+            
+            if (model.isGameOver()) {
+            	view.setCurrentTurnLabel(getGameOverText());
+            	
+	            GameView.Square[][] squares = view.getSquares();
+	            for (int r = 0; r < squares.length; r++) {
+	                for (int c = 0; c < squares[r].length; c++) {
+	                    squares[r][c].setOnMouseClicked(null);
+	                }
+	            }
+            }
+	        else {
+            	view.setCurrentTurnLabel("Current Turn: " + 
                 (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
-        } else {
+	        }
+	    } 
+        else {
             System.out.println("Invalid move at (" + row + ", " + col + ")");
         }
     }
@@ -116,5 +139,52 @@ public class GameController {
 
         RadioButton selected = (RadioButton) group.getSelectedToggle();
         return selected.getText().charAt(0);
+    }
+    
+    private String getGameOverText() {
+        int winner = model.getWinner();
+        if (winner == 1) return "Game Over! Blue Player Wins!";
+        if (winner == 2) return "Game Over! Red Player Wins!";
+        return "Game Over! Draw!";
+    }
+    
+    private void drawSOSLine() {
+    	GameModel.SOS sos = model.getMoveMakesSOS();
+        if (sos == null) return;
+
+        GameView.Square[][] sq = view.getSquares();
+        GridPane boardPane = view.getBoardPane();
+
+        // Center of first square in scene coordinates
+        double x1Scene = sq[sos.row1][sos.col1].localToScene(
+                sq[sos.row1][sos.col1].getWidth() / 2,
+                sq[sos.row1][sos.col1].getHeight() / 2
+        ).getX();
+        double y1Scene = sq[sos.row1][sos.col1].localToScene(
+                sq[sos.row1][sos.col1].getWidth() / 2,
+                sq[sos.row1][sos.col1].getHeight() / 2
+        ).getY();
+
+        // Center of third square in scene coordinates
+        double x2Scene = sq[sos.row3][sos.col3].localToScene(
+                sq[sos.row3][sos.col3].getWidth() / 2,
+                sq[sos.row3][sos.col3].getHeight() / 2
+        ).getX();
+        double y2Scene = sq[sos.row3][sos.col3].localToScene(
+                sq[sos.row3][sos.col3].getWidth() / 2,
+                sq[sos.row3][sos.col3].getHeight() / 2
+        ).getY();
+
+        // Convert scene coordinates to boardPane coordinates
+        double x1 = boardPane.sceneToLocal(x1Scene, y1Scene).getX();
+        double y1 = boardPane.sceneToLocal(x1Scene, y1Scene).getY();
+        double x2 = boardPane.sceneToLocal(x2Scene, y2Scene).getX();
+        double y2 = boardPane.sceneToLocal(x2Scene, y2Scene).getY();
+
+        Line line = new Line(x1, y1, x2, y2);
+        line.setStroke(Color.RED);
+        line.setStrokeWidth(3);
+
+        boardPane.getChildren().add(line);
     }
 }

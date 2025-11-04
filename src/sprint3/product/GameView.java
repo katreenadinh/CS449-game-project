@@ -27,7 +27,7 @@ public class GameView extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Initialize model
-        model = new GameModel(3); // Default 3x3 board
+        model = new SimpleGameModel(3); // Default 3x3 board
 
         mainPanel = new BorderPane();
         mainPanel.setPadding(new Insets(10));
@@ -119,13 +119,18 @@ public class GameView extends Application {
     
     private void startNewGame() {
     	int newSize = boardSizeBox.getValue();
-        model = new GameModel(newSize);
+        model = new SimpleGameModel(newSize);
 
         // Set selected game mode
         RadioButton selectedMode = (RadioButton) gameModeGroup.getSelectedToggle();
         String mode = selectedMode.getText();
-        model.setGameMode(mode.equalsIgnoreCase("Simple") ? GameMode.SIMPLE : GameMode.GENERAL);
-
+        
+        if (mode.equalsIgnoreCase("Simple")) {
+            model = new SimpleGameModel(newSize);
+        } else {
+            model = new GeneralGameModel(newSize);
+        }
+        
         // Recreate the controller and rebuild board
         controller = new GameController(model, this);
         controller.rebuildBoard(newSize);
