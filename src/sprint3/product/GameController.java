@@ -1,5 +1,6 @@
 package sprint3.product;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -110,7 +111,7 @@ public class GameController {
         if (moveMade) {
             System.out.println("Move made at (" + row + ", " + col + ") with " + letter);
             updateSquare(row, col, letter);
-            drawSOSLine();
+            //drawSOSLines();
             
             if (model.isGameOver()) {
             	view.setCurrentTurnLabel(getGameOverText());
@@ -148,43 +149,36 @@ public class GameController {
         return "Game Over! Draw!";
     }
     
-    private void drawSOSLine() {
-    	GameModel.SOS sos = model.getMoveMakesSOS();
-        if (sos == null) return;
-
+    private void SOSLine(GameModel.SOS sos) {
         GameView.Square[][] sq = view.getSquares();
-        GridPane boardPane = view.getBoardPane();
+        GameView.Square start = sq[sos.row1][sos.col1];
+        GameView.Square end = sq[sos.row3][sos.col3];
+        
+        double squareSize = 80;
+        double startX = sos.col1 * squareSize + squareSize / 2;
+        double startY = sos.row1 * squareSize + squareSize / 2;
+        double endX = sos.col3 * squareSize + squareSize / 2;
+        double endY = sos.row3 * squareSize + squareSize / 2;
 
-        // Center of first square in scene coordinates
-        double x1Scene = sq[sos.row1][sos.col1].localToScene(
-                sq[sos.row1][sos.col1].getWidth() / 2,
-                sq[sos.row1][sos.col1].getHeight() / 2
-        ).getX();
-        double y1Scene = sq[sos.row1][sos.col1].localToScene(
-                sq[sos.row1][sos.col1].getWidth() / 2,
-                sq[sos.row1][sos.col1].getHeight() / 2
-        ).getY();
-
-        // Center of third square in scene coordinates
-        double x2Scene = sq[sos.row3][sos.col3].localToScene(
-                sq[sos.row3][sos.col3].getWidth() / 2,
-                sq[sos.row3][sos.col3].getHeight() / 2
-        ).getX();
-        double y2Scene = sq[sos.row3][sos.col3].localToScene(
-                sq[sos.row3][sos.col3].getWidth() / 2,
-                sq[sos.row3][sos.col3].getHeight() / 2
-        ).getY();
-
-        // Convert scene coordinates to boardPane coordinates
-        double x1 = boardPane.sceneToLocal(x1Scene, y1Scene).getX();
-        double y1 = boardPane.sceneToLocal(x1Scene, y1Scene).getY();
-        double x2 = boardPane.sceneToLocal(x2Scene, y2Scene).getX();
-        double y2 = boardPane.sceneToLocal(x2Scene, y2Scene).getY();
-
-        Line line = new Line(x1, y1, x2, y2);
+        Line line = new Line(startX, startY, endX, endY);
         line.setStroke(Color.RED);
         line.setStrokeWidth(3);
+        line.setMouseTransparent(true);
 
-        boardPane.getChildren().add(line);
+        view.getBoardPane().getChildren().add(line);
+        line.toFront();
+    }
+    
+    private void drawSOSLines() {
+        if (model.getGameMode() == GameMode.SIMPLE) {
+            GameModel.SOS sos = model.getMoveMakesSOS();
+            if (sos != null) SOSLine(sos);
+        } 
+        else {
+            GeneralGameModel general = (GeneralGameModel) model;
+            for (GameModel.SOS sos : general.getSOSList()) {
+                SOSLine(sos);
+            }
+        }
     }
 }
