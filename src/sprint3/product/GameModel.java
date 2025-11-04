@@ -25,11 +25,13 @@ public abstract class GameModel {
     	public int row1, col1;
         public int row2, col2;
         public int row3, col3;
+        public int player;
 
-        public SOS(int r1, int c1, int r2, int c2, int r3, int c3) {
+        public SOS(int r1, int c1, int r2, int c2, int r3, int c3, int player) {
             row1 = r1; col1 = c1;
             row2 = r2; col2 = c2;
             row3 = r3; col3 = c3;
+            this.player = player;
         }
     }
 	
@@ -88,7 +90,7 @@ public abstract class GameModel {
             if (r1 >= 0 && r1 < size && c1 >= 0 && c1 < size &&
                 r2 >= 0 && r2 < size && c2 >= 0 && c2 < size) {
                 if (board[r1][c1] == 'S' && board[r2][c2] == 'S') {
-                	return new SOS(r1, c1, row, col, r2, c2);
+                	return new SOS(r1, c1, row, col, r2, c2, currentPlayer);
                 }
             }
         }
@@ -98,7 +100,7 @@ public abstract class GameModel {
             int r2 = row + 2*dRow, c2 = col + 2*dCol;
             if (r2 >= 0 && r2 < size && c2 >= 0 && c2 < size) {
                 if (board[r1][c1] == 'O' && board[r2][c2] == 'S') {
-                	return new SOS(row, col, r1, c1, r2, c2);
+                	return new SOS(row, col, r1, c1, r2, c2, currentPlayer);
                 }
             }
 
@@ -106,7 +108,7 @@ public abstract class GameModel {
             r2 = row - 2*dRow; c2 = col - 2*dCol;
             if (r2 >= 0 && r2 < size && c2 >= 0 && c2 < size) {
                 if (board[r1][c1] == 'O' && board[r2][c2] == 'S') {
-                	return new SOS(r2, c2, r1, c1, row, col);
+                	return new SOS(r2, c2, r1, c1, row, col, currentPlayer);
                 }
             }
         }

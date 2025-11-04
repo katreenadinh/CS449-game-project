@@ -1,8 +1,6 @@
 package sprint3.product;
 
 public class SimpleGameModel extends GameModel {
-	
-	private SOS moveMakesSOS = null;
     
     public SimpleGameModel(int size) {
         super(size);

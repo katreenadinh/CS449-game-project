@@ -84,10 +84,11 @@ public class GameController {
         }
 
         BorderPane mainPanel = view.getMainPanel();
-        mainPanel.setCenter(newBoard);
-
-        view.setBoardPane(newBoard);
+        
         view.setSquares(squares);
+        view.setBoardGrid(newBoard);
+        view.buildBoardStack(newBoard);
+        mainPanel.setCenter(view.getBoardStack());
 
         System.out.println("Board rebuilt to " + newSize + "x" + newSize);
     }
@@ -111,7 +112,7 @@ public class GameController {
         if (moveMade) {
             System.out.println("Move made at (" + row + ", " + col + ") with " + letter);
             updateSquare(row, col, letter);
-            //drawSOSLines();
+            drawSOSLines();
             
             if (model.isGameOver()) {
             	view.setCurrentTurnLabel(getGameOverText());
@@ -154,18 +155,19 @@ public class GameController {
         GameView.Square start = sq[sos.row1][sos.col1];
         GameView.Square end = sq[sos.row3][sos.col3];
         
-        double squareSize = 80;
-        double startX = sos.col1 * squareSize + squareSize / 2;
-        double startY = sos.row1 * squareSize + squareSize / 2;
-        double endX = sos.col3 * squareSize + squareSize / 2;
-        double endY = sos.row3 * squareSize + squareSize / 2;
+        double startX = start.getBoundsInParent().getMinX() + start.getWidth() / 2;
+        double startY = start.getBoundsInParent().getMinY() + start.getHeight() / 2;
+        double endX = end.getBoundsInParent().getMinX() + end.getWidth() / 2;
+        double endY = end.getBoundsInParent().getMinY() + end.getHeight() / 2;
 
         Line line = new Line(startX, startY, endX, endY);
-        line.setStroke(Color.RED);
+        Color lineColor = (sos.player == 1) ? Color.BLUE : Color.RED;
+        
+        line.setStroke(lineColor);
         line.setStrokeWidth(3);
         line.setMouseTransparent(true);
 
-        view.getBoardPane().getChildren().add(line);
+        view.getLinePane().getChildren().add(line);
         line.toFront();
     }
     

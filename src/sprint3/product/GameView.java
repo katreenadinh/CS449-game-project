@@ -16,7 +16,10 @@ public class GameView extends Application {
     private GameController controller;
     private Square[][] squares;
     
-    private GridPane boardPane;
+    private GridPane boardGrid;
+    private Pane linePane;
+    private StackPane boardStack;
+    
     private ToggleGroup gameModeGroup;
     private ToggleGroup blueGroup;
     private ToggleGroup redGroup;
@@ -87,18 +90,8 @@ public class GameView extends Application {
         mainPanel.setRight(redBox);
 
         // --- Center: Game Board ---
-        boardPane = new GridPane();
-        boardPane.setAlignment(Pos.CENTER);
-        int size = model.getSize();
-        squares = new Square[size][size];
-
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
-                squares[row][col] = new Square(row, col);
-                boardPane.add(squares[row][col], col, row);
-            }
-        }
-        mainPanel.setCenter(boardPane);
+        buildBoard(model.getSize());
+        //mainPanel.setCenter(boardStack);
 
         // --- Bottom: Current Turn ---
         currentTurnLabel = new Label("Current Turn: " + 
@@ -115,6 +108,34 @@ public class GameView extends Application {
         primaryStage.setTitle("SOS Game");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+    
+    private void buildBoard(int size) {
+    	boardGrid = new GridPane();
+    	boardGrid.setAlignment(Pos.CENTER);
+    	boardGrid.setGridLinesVisible(true);
+    	
+        squares = new Square[size][size];
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                squares[row][col] = new Square(row, col);
+                boardGrid.add(squares[row][col], col, row);
+            }
+        }
+        
+        buildBoardStack(boardGrid);
+        mainPanel.setCenter(boardStack);
+    }
+    
+    public void buildBoardStack(GridPane grid) {
+        linePane = new Pane();
+        linePane.setPickOnBounds(false);
+
+        linePane.prefWidthProperty().bind(grid.widthProperty());
+        linePane.prefHeightProperty().bind(grid.heightProperty());
+
+        boardStack = new StackPane(grid, linePane);
+        boardStack.setAlignment(Pos.CENTER);
     }
     
     private void startNewGame() {
@@ -231,12 +252,12 @@ public class GameView extends Application {
 	    }
 	}
 
-	public GridPane getBoardPane() {
-		return boardPane;
+	public GridPane getBoardGrid() {
+		return boardGrid;
 	}
 
-	public void setBoardPane(GridPane boardPane) {
-		this.boardPane = boardPane;
+	public void setBoardGrid(GridPane boardGrid) {
+		this.boardGrid = boardGrid;
 	}
 
 	public BorderPane getMainPanel() {
@@ -253,5 +274,21 @@ public class GameView extends Application {
 	
 	public void setModel(GameModel model) {
 		this.model = model;
+	}
+
+	public Pane getLinePane() {
+		return linePane;
+	}
+
+	public void setLinePane(Pane linePane) {
+		this.linePane = linePane;
+	}
+
+	public StackPane getBoardStack() {
+		return boardStack;
+	}
+
+	public void setBoardStack(StackPane boardStack) {
+		this.boardStack = boardStack;
 	}
 }
