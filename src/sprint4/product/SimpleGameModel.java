@@ -1,5 +1,7 @@
 package sprint4.product;
 
+import java.util.List;
+
 public class SimpleGameModel extends GameModel {
     
     public SimpleGameModel(int size) {
@@ -30,6 +32,18 @@ public class SimpleGameModel extends GameModel {
 		}
 		return false;
 	}
+    
+    public boolean makeComputerMove() {
+    	if (isGameOver()) return false;
+    	
+    	List<int[]> emptyCells = getEmptyCells();
+        if (emptyCells.isEmpty()) return false;
+        
+        int[] move = emptyCells.get((int)(Math.random() * emptyCells.size()));
+        char letter = Math.random() < 0.5 ? 'S' : 'O';
+
+        return makeMove(move[0], move[1], letter);
+    }
     
     @Override
     public boolean isGameOver() {

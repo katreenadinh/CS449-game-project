@@ -1,6 +1,7 @@
 package sprint4.product;
 
-import sprint3.product.GameModel.SOS;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class GameModel {
 
@@ -11,6 +12,8 @@ public abstract class GameModel {
 	protected boolean gameOver = false;
     protected int winner = 0;
     protected SOS moveMakesSOS = null;
+    protected PlayerType bluePlayerType;
+    protected PlayerType redPlayerType;
 	
 	public GameModel(int size) {
 		this.size = size;
@@ -114,6 +117,16 @@ public abstract class GameModel {
         }
         return null;
     }
+    
+    protected List<int[]> getEmptyCells() {
+        List<int[]> emptyCells = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (board[i][j] == '\0') emptyCells.add(new int[]{i, j});
+            }
+        }
+        return emptyCells;
+    }
 	
 	public void setGameMode(GameMode mode) {
 		this.gameMode = mode;
@@ -146,6 +159,15 @@ public abstract class GameModel {
 	public SOS getMoveMakesSOS() {
         return moveMakesSOS;
     }
+	
+	public void setPlayerTypes(PlayerType blue, PlayerType red) {
+		this.bluePlayerType = blue;
+	    this.redPlayerType = red;
+	}
+	
+	public PlayerType getCurrentPlayerType() {
+	    return (currentPlayer == 1) ? bluePlayerType : redPlayerType;
+	}
 	
 	public abstract void checkSOS(int row, int col);
 	
