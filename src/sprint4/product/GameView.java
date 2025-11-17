@@ -23,6 +23,8 @@ public class GameView extends Application {
     private ToggleGroup gameModeGroup;
     private ToggleGroup blueGroup;
     private ToggleGroup redGroup;
+    private ToggleGroup blueTypeGroup;
+    private ToggleGroup redTypeGroup;
     private ComboBox<Integer> boardSizeBox;
     private Label currentTurnLabel;
     private BorderPane mainPanel;
@@ -63,30 +65,53 @@ public class GameView extends Application {
         VBox blueBox = new VBox(10);
         blueBox.setAlignment(Pos.CENTER);
         blueBox.setPadding(new Insets(10));
+        
         Label blueLabel = new Label("Blue Player");
         blueLabel.setTextFill(Color.BLUE);
+        
+        // Player type selection
+        RadioButton btnBlueHuman = new RadioButton("Human");
+        RadioButton btnBlueComputer = new RadioButton("Computer");
+        blueTypeGroup = new ToggleGroup();
+        btnBlueHuman.setToggleGroup(blueTypeGroup);
+        btnBlueComputer.setToggleGroup(blueTypeGroup);
+        btnBlueHuman.setSelected(true);
+        
+        // S or O selection
         RadioButton btnBlueS = new RadioButton("S");
         RadioButton btnBlueO = new RadioButton("O");
         blueGroup = new ToggleGroup();
         btnBlueS.setToggleGroup(blueGroup);
         btnBlueO.setToggleGroup(blueGroup);
         btnBlueS.setSelected(true);
-        blueBox.getChildren().addAll(blueLabel, btnBlueS, btnBlueO);
+        
+        blueBox.getChildren().addAll(blueLabel, btnBlueHuman, btnBlueS, btnBlueO, btnBlueComputer);
         mainPanel.setLeft(blueBox);
 
         // --- Right: Red Player ---
         VBox redBox = new VBox(10);
         redBox.setAlignment(Pos.CENTER);
         redBox.setPadding(new Insets(10));
+        
         Label redLabel = new Label("Red Player");
         redLabel.setTextFill(Color.RED);
+        
+        // Player type selection
+        RadioButton btnRedHuman = new RadioButton("Human");
+        RadioButton btnRedComputer = new RadioButton("Computer");
+        redTypeGroup = new ToggleGroup();
+        btnRedHuman.setToggleGroup(redTypeGroup);
+        btnRedComputer.setToggleGroup(redTypeGroup);
+        btnRedHuman.setSelected(true);
+        
+        // S or O selection
         RadioButton btnRedS = new RadioButton("S");
         RadioButton btnRedO = new RadioButton("O");
         redGroup = new ToggleGroup();
         btnRedS.setToggleGroup(redGroup);
         btnRedO.setToggleGroup(redGroup);
         btnRedS.setSelected(true);
-        redBox.getChildren().addAll(redLabel, btnRedS, btnRedO);
+        redBox.getChildren().addAll(redLabel, btnRedHuman, btnRedS, btnRedO, btnRedComputer);
         mainPanel.setRight(redBox);
 
         // --- Center: Game Board ---
