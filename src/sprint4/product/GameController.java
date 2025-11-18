@@ -214,14 +214,7 @@ public class GameController {
     	computerMoveTimer = new PauseTransition(Duration.seconds(0.5));
     	computerMoveTimer.setOnFinished(event  -> {
     		if (model.isGameOver() || model.getCurrentPlayerType() != PlayerType.COMPUTER) return;
-    		boolean moveMade = false;
-
-    		if (model instanceof SimpleGameModel) {
-    			moveMade = ((SimpleGameModel) model).makeComputerMove();
-    		} 
-    		else if (model instanceof GeneralGameModel) {
-    			moveMade = ((GeneralGameModel) model).makeComputerMove();
-    		}
+    		boolean moveMade = model.makeComputerMove();
 
     		if (moveMade) {
     			refreshBoard();

@@ -127,6 +127,18 @@ public abstract class GameModel {
         }
         return emptyCells;
     }
+    
+    public boolean makeComputerMove() {
+		if (isGameOver()) return false;
+
+		List<int[]> emptyCells = getEmptyCells();
+		if (emptyCells.isEmpty()) return false;
+
+		int[] move = emptyCells.get((int)(Math.random() * emptyCells.size()));
+		char letter = Math.random() < 0.5 ? 'S' : 'O';
+
+		return makeMove(move[0], move[1], letter);
+	}
 	
 	public void setGameMode(GameMode mode) {
 		this.gameMode = mode;
