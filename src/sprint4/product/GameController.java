@@ -1,11 +1,13 @@
 package sprint4.product;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Line;
+import javafx.util.Duration;
 import javafx.scene.paint.Color;
 
 public class GameController {
@@ -13,6 +15,7 @@ public class GameController {
     private GameModel model;
     private GameView view;
     private GameView.Square[][] squares;
+    private PauseTransition computerMoveTimer = null;
 
     public GameController(GameModel model, GameView view) {
         this.model = model;
@@ -201,33 +204,44 @@ public class GameController {
     }
     
     private void computerMoveHandlers() {
-        if (model.isGameOver()) return;
 
-        Platform.runLater(() -> {
-            boolean moveMade = false;
+    	if (computerMoveTimer != null) {
+    		computerMoveTimer.stop();
+    	}
 
-            if (model.getCurrentPlayerType() == PlayerType.COMPUTER) {
-                if (model instanceof SimpleGameModel) {
-                    moveMade = ((SimpleGameModel) model).makeComputerMove();
-                } else if (model instanceof GeneralGameModel) {
-                    moveMade = ((GeneralGameModel) model).makeComputerMove();
-                }
+    	if (model.isGameOver() || model.getCurrentPlayerType() != PlayerType.COMPUTER) return;
 
-                if (moveMade) {
-                    refreshBoard();
-                    drawSOSLines();
+    	computerMoveTimer = new PauseTransition(Duration.seconds(0.5));
+    	computerMoveTimer.setOnFinished(event  -> {
+    		if (model.isGameOver() || model.getCurrentPlayerType() != PlayerType.COMPUTER) return;
+    		boolean moveMade = false;
 
-                    if (model.isGameOver()) {
-                        view.setCurrentTurnLabel(getGameOverText());
-                        disableBoardClicks();
-                    } else {
-                        view.setCurrentTurnLabel("Current Turn: " +
-                                (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
-                        computerMoveHandlers();
-                    }
-                }
-            }
-        });
+    		if (model instanceof SimpleGameModel) {
+    			moveMade = ((SimpleGameModel) model).makeComputerMove();
+    		} 
+    		else if (model instanceof GeneralGameModel) {
+    			moveMade = ((GeneralGameModel) model).makeComputerMove();
+    		}
+
+    		if (moveMade) {
+    			refreshBoard();
+    			drawSOSLines();
+
+    			if (model.isGameOver()) {
+    				view.setCurrentTurnLabel(getGameOverText());
+    				disableBoardClicks();
+    				return;
+    			} 
+    			view.setCurrentTurnLabel("Current Turn: " +
+    					(model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
+
+    			if (model.getCurrentPlayerType() == PlayerType.COMPUTER) {
+    				computerMoveTimer.playFromStart();
+    			}
+
+    		}
+    	});
+    	computerMoveTimer.play();
     }
     
     private void refreshBoard() {
