@@ -316,4 +316,20 @@ public class GameView extends Application {
 	public void setBoardStack(StackPane boardStack) {
 		this.boardStack = boardStack;
 	}
+
+	public ToggleGroup getBlueTypeGroup() {
+		return blueTypeGroup;
+	}
+
+	public void setBlueTypeGroup(ToggleGroup blueTypeGroup) {
+		this.blueTypeGroup = blueTypeGroup;
+	}
+
+	public ToggleGroup getRedTypeGroup() {
+		return redTypeGroup;
+	}
+
+	public void setRedTypeGroup(ToggleGroup redTypeGroup) {
+		this.redTypeGroup = redTypeGroup;
+	}
 }

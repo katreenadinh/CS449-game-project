@@ -20,6 +20,20 @@ public class GameController {
         this.squares = view.getSquares();
 
         setupEventHandlers();
+        
+        PlayerType blueType = view.getBlueTypeGroup().getSelectedToggle() != null &&
+                ((RadioButton) view.getBlueTypeGroup().getSelectedToggle()).getText().equalsIgnoreCase("Computer")
+                ? PlayerType.COMPUTER : PlayerType.HUMAN;
+
+		PlayerType redType = view.getRedTypeGroup().getSelectedToggle() != null &&
+		                ((RadioButton) view.getRedTypeGroup().getSelectedToggle()).getText().equalsIgnoreCase("Computer")
+		                ? PlayerType.COMPUTER : PlayerType.HUMAN;
+		
+		model.setPlayerTypes(blueType, redType);
+        
+        if (model.getCurrentPlayerType() == PlayerType.COMPUTER) {
+            computerMoveHandlers();
+        } 
     }
 
     private void setupEventHandlers() {
@@ -89,7 +103,11 @@ public class GameController {
         view.setBoardGrid(newBoard);
         view.buildBoardStack(newBoard);
         mainPanel.setCenter(view.getBoardStack());
-
+        
+        if (model.getCurrentPlayerType() == PlayerType.COMPUTER && !model.isGameOver()) {
+            computerMoveHandlers();
+        }
+        
         System.out.println("Board rebuilt to " + newSize + "x" + newSize);
     }
 
@@ -106,32 +124,30 @@ public class GameController {
             return;
         }
     	
-        char letter = getSelectedLetterForCurrentPlayer();
-        boolean moveMade = model.makeMove(row, col, letter);
+    	if (model.getCurrentPlayerType() != PlayerType.HUMAN) return;
 
-        if (moveMade) {
-            System.out.println("Move made at (" + row + ", " + col + ") with " + letter);
-            updateSquare(row, col, letter);
-            drawSOSLines();
-            
-            if (model.isGameOver()) {
-            	view.setCurrentTurnLabel(getGameOverText());
-            	
-	            GameView.Square[][] squares = view.getSquares();
-	            for (int r = 0; r < squares.length; r++) {
-	                for (int c = 0; c < squares[r].length; c++) {
-	                    squares[r][c].setOnMouseClicked(null);
-	                }
-	            }
-            }
-	        else {
-            	view.setCurrentTurnLabel("Current Turn: " + 
-                (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
-	        }
-	    } 
-        else {
-            System.out.println("Invalid move at (" + row + ", " + col + ")");
-        }
+    	char letter = getSelectedLetterForCurrentPlayer();
+    	boolean moveMade = model.makeMove(row, col, letter);
+
+    	if (moveMade) {
+    		System.out.println("Move made at (" + row + ", " + col + ") with " + letter);
+    		updateSquare(row, col, letter);
+    		drawSOSLines();
+
+    		if (model.isGameOver()) {
+    			view.setCurrentTurnLabel(getGameOverText());
+    			disableBoardClicks();
+    		}
+    		else {
+    			view.setCurrentTurnLabel("Current Turn: " + 
+    					(model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
+    			computerMoveHandlers();
+    		}
+    	} 
+    	else {
+    		System.out.println("Invalid move at (" + row + ", " + col + ")");
+    	}
+    	
     }
 
     private char getSelectedLetterForCurrentPlayer() {
@@ -180,6 +196,54 @@ public class GameController {
             GeneralGameModel general = (GeneralGameModel) model;
             for (GameModel.SOS sos : general.getSOSList()) {
                 SOSLine(sos);
+            }
+        }
+    }
+    
+    private void computerMoveHandlers() {
+        if (model.isGameOver()) return;
+
+        Platform.runLater(() -> {
+            boolean moveMade = false;
+
+            if (model.getCurrentPlayerType() == PlayerType.COMPUTER) {
+                if (model instanceof SimpleGameModel) {
+                    moveMade = ((SimpleGameModel) model).makeComputerMove();
+                } else if (model instanceof GeneralGameModel) {
+                    moveMade = ((GeneralGameModel) model).makeComputerMove();
+                }
+
+                if (moveMade) {
+                    refreshBoard();
+                    drawSOSLines();
+
+                    if (model.isGameOver()) {
+                        view.setCurrentTurnLabel(getGameOverText());
+                        disableBoardClicks();
+                    } else {
+                        view.setCurrentTurnLabel("Current Turn: " +
+                                (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
+                        computerMoveHandlers();
+                    }
+                }
+            }
+        });
+    }
+    
+    private void refreshBoard() {
+        char[][] boardData = model.getBoard();
+        for (int r = 0; r < boardData.length; r++) {
+            for (int c = 0; c < boardData[r].length; c++) {
+                view.getSquares()[r][c].setLetter(boardData[r][c]);
+            }
+        }
+    }
+    
+    private void disableBoardClicks() {
+        GameView.Square[][] sq = view.getSquares();
+        for (int r = 0; r < sq.length; r++) {
+            for (int c = 0; c < sq[r].length; c++) {
+                sq[r][c].setOnMouseClicked(null);
             }
         }
     }
