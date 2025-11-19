@@ -36,100 +36,18 @@ public class GameView extends Application {
 
         mainPanel = new BorderPane();
         mainPanel.setPadding(new Insets(10));
-
-        // --- Top: Game Mode & Board Size ---
-        HBox modeBox = new HBox(20);
-        modeBox.setAlignment(Pos.CENTER);
-        modeBox.setPadding(new Insets(10));
-
-        Label modeLabel = new Label("Game Mode:");
-        RadioButton btnSimpleMode = new RadioButton("Simple");
-        RadioButton btnGeneralMode = new RadioButton("General");
-        gameModeGroup = new ToggleGroup();
-        btnSimpleMode.setToggleGroup(gameModeGroup);
-        btnGeneralMode.setToggleGroup(gameModeGroup);
-        btnSimpleMode.setSelected(true);
-
-        Label sizeLabel = new Label("Board Size:");
-        boardSizeBox = new ComboBox<>();
-        boardSizeBox.getItems().addAll(3, 4, 5, 6, 7, 8, 9);
-        boardSizeBox.setValue(3);
         
-        Button newGameButton = new Button("New Game");
-        newGameButton.setOnAction(e -> startNewGame());
-
-        modeBox.getChildren().addAll(modeLabel, btnSimpleMode, btnGeneralMode, sizeLabel, boardSizeBox, newGameButton);
-        mainPanel.setTop(modeBox);
-
-        // --- Left: Blue Player ---
-        VBox blueBox = new VBox(10);
-        blueBox.setAlignment(Pos.CENTER);
-        blueBox.setPadding(new Insets(10));
-        
-        Label blueLabel = new Label("Blue Player");
-        blueLabel.setTextFill(Color.BLUE);
-        
-        // Player type selection
-        RadioButton btnBlueHuman = new RadioButton("Human");
-        RadioButton btnBlueComputer = new RadioButton("Computer");
-        blueTypeGroup = new ToggleGroup();
-        btnBlueHuman.setToggleGroup(blueTypeGroup);
-        btnBlueComputer.setToggleGroup(blueTypeGroup);
-        btnBlueHuman.setSelected(true);
-        
-        // S or O selection
-        RadioButton btnBlueS = new RadioButton("S");
-        RadioButton btnBlueO = new RadioButton("O");
-        blueGroup = new ToggleGroup();
-        btnBlueS.setToggleGroup(blueGroup);
-        btnBlueO.setToggleGroup(blueGroup);
-        btnBlueS.setSelected(true);
-        
-        blueBox.getChildren().addAll(blueLabel, btnBlueHuman, btnBlueS, btnBlueO, btnBlueComputer);
-        mainPanel.setLeft(blueBox);
-
-        // --- Right: Red Player ---
-        VBox redBox = new VBox(10);
-        redBox.setAlignment(Pos.CENTER);
-        redBox.setPadding(new Insets(10));
-        
-        Label redLabel = new Label("Red Player");
-        redLabel.setTextFill(Color.RED);
-        
-        // Player type selection
-        RadioButton btnRedHuman = new RadioButton("Human");
-        RadioButton btnRedComputer = new RadioButton("Computer");
-        redTypeGroup = new ToggleGroup();
-        btnRedHuman.setToggleGroup(redTypeGroup);
-        btnRedComputer.setToggleGroup(redTypeGroup);
-        btnRedHuman.setSelected(true);
-        
-        // S or O selection
-        RadioButton btnRedS = new RadioButton("S");
-        RadioButton btnRedO = new RadioButton("O");
-        redGroup = new ToggleGroup();
-        btnRedS.setToggleGroup(redGroup);
-        btnRedO.setToggleGroup(redGroup);
-        btnRedS.setSelected(true);
-        redBox.getChildren().addAll(redLabel, btnRedHuman, btnRedS, btnRedO, btnRedComputer);
-        mainPanel.setRight(redBox);
+        buildTopGameSettings();
+        buildLeftBlueControls();
+        buildRightRedControls();
+        buildBottomTurnLabel();
 
         // --- Center: Game Board ---
         buildBoard(model.getSize());
-        //mainPanel.setCenter(boardStack);
-
-        // --- Bottom: Current Turn ---
-        currentTurnLabel = new Label("Current Turn: " + 
-        	    (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
-        currentTurnLabel.setFont(Font.font(16));
-        currentTurnLabel.setAlignment(Pos.CENTER);
-        BorderPane.setAlignment(currentTurnLabel, Pos.CENTER);
-        mainPanel.setBottom(currentTurnLabel);
         
         controller = new GameController(model, this);
         
         Scene scene = new Scene(mainPanel, 700, 600);
-
         primaryStage.setTitle("SOS Game");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -218,6 +136,96 @@ public class GameView extends Application {
         	letterLabel.setText(String.valueOf(letter));
         }
     }
+    
+    private void buildTopGameSettings() {
+    	HBox modeBox = new HBox(20);
+        modeBox.setAlignment(Pos.CENTER);
+        modeBox.setPadding(new Insets(10));
+
+        Label modeLabel = new Label("Game Mode:");
+        RadioButton btnSimpleMode = new RadioButton("Simple");
+        RadioButton btnGeneralMode = new RadioButton("General");
+        gameModeGroup = new ToggleGroup();
+        btnSimpleMode.setToggleGroup(gameModeGroup);
+        btnGeneralMode.setToggleGroup(gameModeGroup);
+        btnSimpleMode.setSelected(true);
+
+        Label sizeLabel = new Label("Board Size:");
+        boardSizeBox = new ComboBox<>();
+        boardSizeBox.getItems().addAll(3, 4, 5, 6, 7, 8, 9);
+        boardSizeBox.setValue(3);
+        
+        Button newGameButton = new Button("New Game");
+        newGameButton.setOnAction(e -> startNewGame());
+
+        modeBox.getChildren().addAll(modeLabel, btnSimpleMode, btnGeneralMode, sizeLabel, boardSizeBox, newGameButton);
+        mainPanel.setTop(modeBox);
+    }
+    
+    private void buildLeftBlueControls() {
+    	VBox blueBox = new VBox(10);
+        blueBox.setAlignment(Pos.CENTER);
+        blueBox.setPadding(new Insets(10));
+        
+        Label blueLabel = new Label("Blue Player");
+        blueLabel.setTextFill(Color.BLUE);
+        
+        // Player type selection
+        RadioButton btnBlueHuman = new RadioButton("Human");
+        RadioButton btnBlueComputer = new RadioButton("Computer");
+        blueTypeGroup = new ToggleGroup();
+        btnBlueHuman.setToggleGroup(blueTypeGroup);
+        btnBlueComputer.setToggleGroup(blueTypeGroup);
+        btnBlueHuman.setSelected(true);
+        
+        // S or O selection
+        RadioButton btnBlueS = new RadioButton("S");
+        RadioButton btnBlueO = new RadioButton("O");
+        blueGroup = new ToggleGroup();
+        btnBlueS.setToggleGroup(blueGroup);
+        btnBlueO.setToggleGroup(blueGroup);
+        btnBlueS.setSelected(true);
+        
+        blueBox.getChildren().addAll(blueLabel, btnBlueHuman, btnBlueS, btnBlueO, btnBlueComputer);
+        mainPanel.setLeft(blueBox);
+    }
+    
+    private void buildRightRedControls() {
+    	VBox redBox = new VBox(10);
+        redBox.setAlignment(Pos.CENTER);
+        redBox.setPadding(new Insets(10));
+        
+        Label redLabel = new Label("Red Player");
+        redLabel.setTextFill(Color.RED);
+        
+        // Player type selection
+        RadioButton btnRedHuman = new RadioButton("Human");
+        RadioButton btnRedComputer = new RadioButton("Computer");
+        redTypeGroup = new ToggleGroup();
+        btnRedHuman.setToggleGroup(redTypeGroup);
+        btnRedComputer.setToggleGroup(redTypeGroup);
+        btnRedHuman.setSelected(true);
+        
+        // S or O selection
+        RadioButton btnRedS = new RadioButton("S");
+        RadioButton btnRedO = new RadioButton("O");
+        redGroup = new ToggleGroup();
+        btnRedS.setToggleGroup(redGroup);
+        btnRedO.setToggleGroup(redGroup);
+        btnRedS.setSelected(true);
+        redBox.getChildren().addAll(redLabel, btnRedHuman, btnRedS, btnRedO, btnRedComputer);
+        mainPanel.setRight(redBox);
+    }
+    
+    private void buildBottomTurnLabel() {
+    	currentTurnLabel = new Label("Current Turn: " + 
+        	    (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
+        currentTurnLabel.setFont(Font.font(16));
+        currentTurnLabel.setAlignment(Pos.CENTER);
+        BorderPane.setAlignment(currentTurnLabel, Pos.CENTER);
+        mainPanel.setBottom(currentTurnLabel);
+    }
+    
 
     public static void main(String[] args) {
         launch(args);

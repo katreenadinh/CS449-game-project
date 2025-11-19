@@ -24,15 +24,6 @@ public class GameController {
 
         setupEventHandlers();
         
-        PlayerType blueType = view.getBlueTypeGroup().getSelectedToggle() != null &&
-                ((RadioButton) view.getBlueTypeGroup().getSelectedToggle()).getText().equalsIgnoreCase("Computer")
-                ? PlayerType.COMPUTER : PlayerType.HUMAN;
-
-		PlayerType redType = view.getRedTypeGroup().getSelectedToggle() != null &&
-		                ((RadioButton) view.getRedTypeGroup().getSelectedToggle()).getText().equalsIgnoreCase("Computer")
-		                ? PlayerType.COMPUTER : PlayerType.HUMAN;
-		
-		model.setPlayerTypes(blueType, redType);
         
         if (model.getCurrentPlayerType() == PlayerType.COMPUTER) {
             computerMoveHandlers();
@@ -43,6 +34,7 @@ public class GameController {
         modeSelectorListeners();
         boardSizeSelectorListeners();
         squareListeners();
+        playerTypeSelectorListeners();
     }
 
     private void modeSelectorListeners() {
@@ -253,5 +245,17 @@ public class GameController {
                 sq[r][c].setOnMouseClicked(null);
             }
         }
+    }
+    
+    private void playerTypeSelectorListeners() {
+    	PlayerType blueType = view.getBlueTypeGroup().getSelectedToggle() != null &&
+                ((RadioButton) view.getBlueTypeGroup().getSelectedToggle()).getText().equalsIgnoreCase("Computer")
+                ? PlayerType.COMPUTER : PlayerType.HUMAN;
+
+		PlayerType redType = view.getRedTypeGroup().getSelectedToggle() != null &&
+		                ((RadioButton) view.getRedTypeGroup().getSelectedToggle()).getText().equalsIgnoreCase("Computer")
+		                ? PlayerType.COMPUTER : PlayerType.HUMAN;
+		
+		model.setPlayerTypes(blueType, redType);
     }
 }
