@@ -12,8 +12,9 @@ public abstract class GameModel {
 	protected boolean gameOver = false;
     protected int winner = 0;
     protected SOS moveMakesSOS = null;
-    protected PlayerType bluePlayerType;
-    protected PlayerType redPlayerType;
+    protected PlayerModel bluePlayerType;
+    protected PlayerModel redPlayerType;
+  
 	
 	public GameModel(int size) {
 		this.size = size;
@@ -22,6 +23,8 @@ public abstract class GameModel {
 		gameMode = GameMode.SIMPLE;
 		gameOver = false;
 		winner = 0;
+		bluePlayerType = new HumanPlayerModel(1);
+		redPlayerType = new HumanPlayerModel(2);
 	}
 	
 	public static class SOS {
@@ -55,6 +58,11 @@ public abstract class GameModel {
 	public int getSize() {
 		return size;
 	}
+	
+	public boolean makeMove(PlayerModel.Move m) {
+        if (m == null) return false;
+        return makeMove(m.row, m.col, m.letter);
+    }
 	
 	public boolean setBoardSize(int newSize) {
 		if (newSize < 3) {
@@ -118,7 +126,7 @@ public abstract class GameModel {
         return null;
     }
     
-    protected List<int[]> getEmptyCells() {
+    public List<int[]> getEmptyCells() {
         List<int[]> emptyCells = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -127,18 +135,6 @@ public abstract class GameModel {
         }
         return emptyCells;
     }
-    
-    public boolean makeComputerMove() {
-		if (isGameOver()) return false;
-
-		List<int[]> emptyCells = getEmptyCells();
-		if (emptyCells.isEmpty()) return false;
-
-		int[] move = emptyCells.get((int)(Math.random() * emptyCells.size()));
-		char letter = Math.random() < 0.5 ? 'S' : 'O';
-
-		return makeMove(move[0], move[1], letter);
-	}
 	
 	public void setGameMode(GameMode mode) {
 		this.gameMode = mode;
@@ -173,12 +169,27 @@ public abstract class GameModel {
     }
 	
 	public void setPlayerTypes(PlayerType blue, PlayerType red) {
-		this.bluePlayerType = blue;
-	    this.redPlayerType = red;
+		if (blue == PlayerType.COMPUTER) {
+            this.bluePlayerType = new ComputerPlayerModel(1);
+        } 
+		else {
+            this.bluePlayerType = new HumanPlayerModel(1);
+        }
+        
+        if (red == PlayerType.COMPUTER) {
+            this.redPlayerType = new ComputerPlayerModel(2);
+        } 
+        else {
+            this.redPlayerType = new HumanPlayerModel(2);
+        }
+	}
+	
+	public PlayerModel getCurrentPlayerObject() {
+	    return (currentPlayer == 1) ? bluePlayerType : redPlayerType;
 	}
 	
 	public PlayerType getCurrentPlayerType() {
-	    return (currentPlayer == 1) ? bluePlayerType : redPlayerType;
+		return getCurrentPlayerObject().isComputer() ? PlayerType.COMPUTER : PlayerType.HUMAN;
 	}
 	
 	public abstract void checkSOS(int row, int col);

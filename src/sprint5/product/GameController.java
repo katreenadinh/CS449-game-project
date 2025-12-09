@@ -26,7 +26,7 @@ public class GameController {
         
         
         if (model.getCurrentPlayerType() == PlayerType.COMPUTER) {
-            computerMoveHandlers();
+            scheduleNextComputerMove();
         } 
     }
 
@@ -100,7 +100,7 @@ public class GameController {
         mainPanel.setCenter(view.getBoardStack());
         
         if (model.getCurrentPlayerType() == PlayerType.COMPUTER && !model.isGameOver()) {
-            computerMoveHandlers();
+            scheduleNextComputerMove();
         }
         
         System.out.println("Board rebuilt to " + newSize + "x" + newSize);
@@ -136,7 +136,7 @@ public class GameController {
     		else {
     			view.setCurrentTurnLabel("Current Turn: " + 
     					(model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
-    			computerMoveHandlers();
+    			scheduleNextComputerMove();
     		}
     	} 
     	else {
@@ -195,7 +195,7 @@ public class GameController {
         }
     }
     
-    private void computerMoveHandlers() {
+    private void scheduleNextComputerMove() {
 
     	if (computerMoveTimer != null) {
     		computerMoveTimer.stop();
@@ -206,8 +206,15 @@ public class GameController {
     	computerMoveTimer = new PauseTransition(Duration.seconds(0.5));
     	computerMoveTimer.setOnFinished(event  -> {
     		if (model.isGameOver() || model.getCurrentPlayerType() != PlayerType.COMPUTER) return;
-    		boolean moveMade = model.makeComputerMove();
-
+    		
+    		PlayerModel currentPlayer = model.getCurrentPlayerObject();
+    		PlayerModel.Move mv = currentPlayer.chooseMove(model);
+    		
+    		boolean moveMade = false;
+    		if (mv != null) {
+    			moveMade = model.makeMove(mv);
+    		}
+    		
     		if (moveMade) {
     			refreshBoard();
     			drawSOSLines();
@@ -257,5 +264,11 @@ public class GameController {
 		                ? PlayerType.COMPUTER : PlayerType.HUMAN;
 		
 		model.setPlayerTypes(blueType, redType);
+		
+		if (model.getCurrentPlayerType() == PlayerType.COMPUTER && !model.isGameOver()) {
+            scheduleNextComputerMove();
+        } else if (computerMoveTimer != null) {
+            computerMoveTimer.stop();
+        }
     }
 }
