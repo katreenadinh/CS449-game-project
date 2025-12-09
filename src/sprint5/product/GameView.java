@@ -85,7 +85,6 @@ public class GameView extends Application {
     
     private void startNewGame() {
     	int newSize = boardSizeBox.getValue();
-        model = new SimpleGameModel(newSize);
 
         // Set selected game mode
         RadioButton selectedMode = (RadioButton) gameModeGroup.getSelectedToggle();
@@ -97,7 +96,10 @@ public class GameView extends Application {
             model = new GeneralGameModel(newSize);
         }
         
-        // Recreate the controller and rebuild board
+        if (linePane != null) {
+            linePane.getChildren().clear();
+        }
+        
         controller = new GameController(model, this);
         controller.rebuildBoard(newSize);
 
@@ -241,6 +243,9 @@ public class GameView extends Application {
         mainPanel.setBottom(bottomBox);
     }
     
+    public GameController getController() {
+        return controller;
+    }
 
     public static void main(String[] args) {
         launch(args);

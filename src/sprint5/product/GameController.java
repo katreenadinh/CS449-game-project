@@ -229,31 +229,23 @@ public class GameController {
     		PlayerModel currentPlayer = model.getCurrentPlayerObject();
     		PlayerModel.Move mv = currentPlayer.chooseMove(model);
     		
-    		boolean moveMade = false;
-    		if (mv != null) {
-    			moveMade = model.makeMove(mv);
-    		}
-    		
-    		if (moveMade) {
-    			refreshBoard();
-    			drawSOSLines();
+    		if (mv != null && model.makeMove(mv)) {
+                refreshBoard();
+                drawSOSLines();
+            }
 
-    			if (model.isGameOver()) {
-    				view.setCurrentTurnLabel(getGameOverText());
-    				disableBoardClicks();
-    				stopRecordingIfActive();
-    				return;
-    			} 
-    			view.setCurrentTurnLabel("Current Turn: " +
-    					(model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
-
-    			if (model.getCurrentPlayerType() == PlayerType.COMPUTER) {
-    				computerMoveTimer.playFromStart();
-    			}
-
-    		}
-    	});
-    	computerMoveTimer.play();
+            if (model.isGameOver()) {
+                view.setCurrentTurnLabel(getGameOverText());
+                disableBoardClicks();
+                stopRecordingIfActive();
+            } else {
+                updateTurnLabel();
+                if (model.getCurrentPlayerType() == PlayerType.COMPUTER) {
+                    computerMoveTimer.playFromStart();
+                }
+            }
+        });
+        computerMoveTimer.play();
     }
     
     private void refreshBoard() {
@@ -365,9 +357,13 @@ public class GameController {
         PlayerModel.Move move = moves.get(index);
         replayTimer = new PauseTransition(Duration.seconds(1.0));
         replayTimer.setOnFinished(e -> {
+        	
             if (model.makeMove(move)) {
                 updateSquare(move.row, move.col, move.letter);
                 drawSOSLines();
+                
+                view.setCurrentTurnLabel("Current Turn (Replay): " +
+                		(model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
             }
             replayMoves(moves, index + 1);
         });
@@ -375,22 +371,25 @@ public class GameController {
     }
 
     private void finishReplay() {
-        view.setCurrentTurnLabel("Replay finished! " + getGameOverText());
+    	view.setCurrentTurnLabel("Replay finished!" + " - " + getGameOverText());
+
         PauseTransition endPause = new PauseTransition(Duration.seconds(1.0));
         endPause.setOnFinished(e -> {
-            this.model = savedModelForReplay;
-            view.setModel(savedModelForReplay);
-            rebuildBoard(savedModelForReplay.getSize());
-            view.setCurrentTurnLabel("Current Turn: " +
-                    (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
-
-            model.setRecorder(recorder);
-            if (model.getCurrentPlayerType() == PlayerType.COMPUTER && !model.isGameOver())
-                scheduleNextComputerMove();
-
             isReplaying = false;
             savedModelForReplay = null;
+
+            disableBoardClicks();
+            squareListeners();
+
+            if (model.getCurrentPlayerType() == PlayerType.COMPUTER && !model.isGameOver()) {
+                scheduleNextComputerMove();
+            }
         });
         endPause.play();
+    }
+    
+    private void updateTurnLabel() {
+        view.setCurrentTurnLabel("Current Turn: " + 
+            (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
     }
 }

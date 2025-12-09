@@ -49,7 +49,7 @@ public class GeneralGameModel extends GameModel{
             
             checkSOS(row, col);
             SOS found = hasSOS(row, col);
-            if (found == null) switchPlayer();
+            if (found == null && !isGameOver()) switchPlayer();
             return true;
         }
         return false;

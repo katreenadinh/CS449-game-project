@@ -34,7 +34,11 @@ public class SimpleGameModel extends GameModel {
             }
 			
 			checkSOS(row, col);
-			switchPlayer();
+			
+			if (!isGameOver()) {
+				switchPlayer();
+			}
+			
 			return true;
 		}
 		return false;
