@@ -218,12 +218,25 @@ public class GameView extends Application {
     }
     
     private void buildBottomTurnLabel() {
+    	CheckBox recordCheckBox = new CheckBox("Record Game");
+    	
     	currentTurnLabel = new Label("Current Turn: " + 
         	    (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
         currentTurnLabel.setFont(Font.font(16));
         currentTurnLabel.setAlignment(Pos.CENTER);
-        BorderPane.setAlignment(currentTurnLabel, Pos.CENTER);
-        mainPanel.setBottom(currentTurnLabel);
+        
+        Button replayButton = new Button("Replay");
+        
+        HBox bottomBox = new HBox(20);
+        bottomBox.setPadding(new Insets(10));
+        bottomBox.setAlignment(Pos.CENTER);
+        
+        HBox.setHgrow(currentTurnLabel, Priority.ALWAYS);
+        currentTurnLabel.setMaxWidth(Double.MAX_VALUE);
+        currentTurnLabel.setAlignment(Pos.CENTER);
+        bottomBox.getChildren().addAll(recordCheckBox, currentTurnLabel, replayButton);
+        
+        mainPanel.setBottom(bottomBox);
     }
     
 
