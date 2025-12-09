@@ -14,6 +14,8 @@ public abstract class GameModel {
     protected SOS moveMakesSOS = null;
     protected PlayerModel bluePlayerType;
     protected PlayerModel redPlayerType;
+    protected List<PlayerModel.Move> moveHistory;
+    protected GameRecorder recorder;
   
 	
 	public GameModel(int size) {
@@ -25,6 +27,8 @@ public abstract class GameModel {
 		winner = 0;
 		bluePlayerType = new HumanPlayerModel(1);
 		redPlayerType = new HumanPlayerModel(2);
+		moveHistory = new ArrayList<>();
+		recorder = null;
 	}
 	
 	public static class SOS {
@@ -48,6 +52,11 @@ public abstract class GameModel {
 	public boolean makeMove(int row, int col, char letter) {
 		if (board[row][col] == '\0' && !isGameOver()) {
 			board[row][col] = letter;
+			
+			if (recorder != null && recorder.isRecording()) {
+				recorder.recordMove(new PlayerModel.Move(row, col, letter));
+			}
+			
 			checkSOS(row, col);
 			switchPlayer();
 			return true;
@@ -55,14 +64,14 @@ public abstract class GameModel {
 		return false;
 	}
 	
-	public int getSize() {
-		return size;
-	}
-	
 	public boolean makeMove(PlayerModel.Move m) {
         if (m == null) return false;
         return makeMove(m.row, m.col, m.letter);
     }
+	
+	public int getSize() {
+		return size;
+	}
 	
 	public boolean setBoardSize(int newSize) {
 		if (newSize < 3) {
@@ -197,4 +206,12 @@ public abstract class GameModel {
 	public abstract boolean isGameOver();
 	
 	public abstract int getWinner();
+	
+	public void setRecorder(GameRecorder recorder) {
+		this.recorder = recorder;
+	}
+	
+	public GameRecorder getRecorder() {
+		return recorder;
+	}
 }

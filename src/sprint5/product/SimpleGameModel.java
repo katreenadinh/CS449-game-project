@@ -28,6 +28,11 @@ public class SimpleGameModel extends GameModel {
     	
 		if (board[row][col] == '\0' && !isGameOver()) {
 			board[row][col] = letter;
+			
+			if (recorder != null && recorder.isRecording()) {
+                recorder.recordMove(new PlayerModel.Move(row, col, letter));
+            }
+			
 			checkSOS(row, col);
 			switchPlayer();
 			return true;
