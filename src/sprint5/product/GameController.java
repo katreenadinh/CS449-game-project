@@ -9,6 +9,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Line;
 import javafx.util.Duration;
 import javafx.scene.paint.Color;
+import java.util.List;
 
 public class GameController {
 
@@ -16,14 +17,25 @@ public class GameController {
     private GameView view;
     private GameView.Square[][] squares;
     private PauseTransition computerMoveTimer = null;
+    private GameRecorder recorder;
+    private PauseTransition replayTimer = null;
+    private boolean isReplaying = false;
+    private GameModel savedModelForReplay = null;
 
     public GameController(GameModel model, GameView view) {
         this.model = model;
         this.view = view;
         this.squares = view.getSquares();
-
+        this.recorder = new GameRecorder();
+       
+        
+        model.setRecorder(recorder);
         setupEventHandlers();
         
+        CheckBox recordCheck = view.getRecordCheckBox();
+        if (recordCheck != null && recordCheck.isSelected()) {
+            startRecording();
+        }
         
         if (model.getCurrentPlayerType() == PlayerType.COMPUTER) {
             scheduleNextComputerMove();
@@ -35,6 +47,8 @@ public class GameController {
         boardSizeSelectorListeners();
         squareListeners();
         playerTypeSelectorListeners();
+        recordingListeners();
+        replayListeners();
     }
 
     private void modeSelectorListeners() {
@@ -132,6 +146,7 @@ public class GameController {
     		if (model.isGameOver()) {
     			view.setCurrentTurnLabel(getGameOverText());
     			disableBoardClicks();
+    			stopRecordingIfActive();
     		}
     		else {
     			view.setCurrentTurnLabel("Current Turn: " + 
@@ -207,6 +222,10 @@ public class GameController {
     	computerMoveTimer.setOnFinished(event  -> {
     		if (model.isGameOver() || model.getCurrentPlayerType() != PlayerType.COMPUTER) return;
     		
+    		if (recorder != null && !recorder.isRecording()) {
+                startRecording();
+            }
+    		
     		PlayerModel currentPlayer = model.getCurrentPlayerObject();
     		PlayerModel.Move mv = currentPlayer.chooseMove(model);
     		
@@ -222,6 +241,7 @@ public class GameController {
     			if (model.isGameOver()) {
     				view.setCurrentTurnLabel(getGameOverText());
     				disableBoardClicks();
+    				stopRecordingIfActive();
     				return;
     			} 
     			view.setCurrentTurnLabel("Current Turn: " +
@@ -270,5 +290,107 @@ public class GameController {
         } else if (computerMoveTimer != null) {
             computerMoveTimer.stop();
         }
+    }
+    
+    private void startRecording() {
+        recorder.startRecording(model.getSize(), model.getGameMode(),
+                model.getBluePlayerType(), model.getRedPlayerType());
+    }
+
+    private void stopRecordingIfActive() {
+        if (recorder.isRecording()) {
+            recorder.stopRecording();
+            recorder.saveToFile("prev_game_recording.txt");
+        }
+    }
+
+    private void recordingListeners() {
+        CheckBox recordCheckBox = view.getRecordCheckBox();
+        if (recordCheckBox != null) {
+            recordCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal) startRecording();
+                else stopRecordingIfActive();
+            });
+        }
+    }
+
+    private void replayListeners() {
+        Button replayButton = view.getBtnReplay();
+        if (replayButton != null) {
+            replayButton.setOnAction(e -> startReplay());
+        }
+    }
+
+    private void startReplay() {
+        if (isReplaying) return;
+
+        List<PlayerModel.Move> moves = recorder.loadFromFile("prev_game_recording.txt");
+        if (moves == null || moves.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Replay");
+            alert.setHeaderText(null);
+            alert.setContentText("No recorded game found to replay.");
+            alert.showAndWait();
+            return;
+        }
+
+        isReplaying = true;
+        if (computerMoveTimer != null) computerMoveTimer.stop();
+        savedModelForReplay = model;
+
+        // create replay model using metadata
+        GameModel replayModel;
+        if (recorder.getGameMode() == GameMode.SIMPLE)
+            replayModel = new SimpleGameModel(recorder.getBoardSize());
+        else
+            replayModel = new GeneralGameModel(recorder.getBoardSize());
+
+        replayModel.setPlayerTypes(recorder.getBlueType(), recorder.getRedType());
+        replayModel.setRecorder(null);
+
+        this.model = replayModel;
+        view.setModel(replayModel);
+        rebuildBoard(replayModel.getSize());
+        view.setCurrentTurnLabel("Replaying game...");
+
+        replayMoves(moves, 0);
+    }
+
+    private void replayMoves(List<PlayerModel.Move> moves, int index) {
+        if (index >= moves.size()) {
+            finishReplay();
+            return;
+        }
+
+        PlayerModel.Move move = moves.get(index);
+        replayTimer = new PauseTransition(Duration.seconds(1.0));
+        replayTimer.setOnFinished(e -> {
+            if (model.makeMove(move)) {
+                updateSquare(move.row, move.col, move.letter);
+                drawSOSLines();
+            }
+            replayMoves(moves, index + 1);
+        });
+        replayTimer.play();
+    }
+
+    private void finishReplay() {
+        view.setCurrentTurnLabel("Replay finished! " + getGameOverText());
+        PauseTransition endPause = new PauseTransition(Duration.seconds(1.0));
+        endPause.setOnFinished(e -> {
+            this.model = savedModelForReplay;
+            view.setModel(savedModelForReplay);
+            rebuildBoard(savedModelForReplay.getSize());
+            view.setCurrentTurnLabel("Current Turn: " +
+                    (model.getCurrentPlayer() == 1 ? "Blue Player" : "Red Player"));
+
+            model.setRecorder(recorder);
+            if (model.getCurrentPlayerType() == PlayerType.COMPUTER && !model.isGameOver())
+                scheduleNextComputerMove();
+
+            isReplaying = false;
+            savedModelForReplay = null;
+        });
+        endPause.play();
     }
 }

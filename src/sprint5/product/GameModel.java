@@ -28,7 +28,6 @@ public abstract class GameModel {
 		bluePlayerType = new HumanPlayerModel(1);
 		redPlayerType = new HumanPlayerModel(2);
 		moveHistory = new ArrayList<>();
-		recorder = null;
 	}
 	
 	public static class SOS {
@@ -200,6 +199,15 @@ public abstract class GameModel {
 	public PlayerType getCurrentPlayerType() {
 		return getCurrentPlayerObject().isComputer() ? PlayerType.COMPUTER : PlayerType.HUMAN;
 	}
+	
+	public PlayerType getBluePlayerType() {
+	    return (bluePlayerType.isComputer()) ? PlayerType.COMPUTER : PlayerType.HUMAN;
+	}
+
+	public PlayerType getRedPlayerType() {
+	    return (redPlayerType.isComputer()) ? PlayerType.COMPUTER : PlayerType.HUMAN;
+	}
+
 	
 	public abstract void checkSOS(int row, int col);
 	
